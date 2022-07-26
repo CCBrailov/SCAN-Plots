@@ -53,7 +53,7 @@ args.l = 0.1
 args.delim = "\t"
 
 # Initialize Test Dataset
-testdataset = dataset(glob.glob(f'data/{args.dset_name}/test/*.txt'), args)
+testdataset = dataset(glob.glob(f'data/{args.dset_name}/test/temp.txt'), args)
 print(f'Number of Test Samples: {len(testdataset)}')
 
 print('-'*100)
@@ -101,33 +101,38 @@ for b, batch in enumerate(testloader):
 	gt_traj = torch.cat((sequence, target), dim=1)
 	num_ped, slen = sequence.size()[:2] 
 	
-	colors = plt.cm.tab10(np.linspace(0,1,num_ped))
-	print(f'Number of pedestrians: {num_ped}')
-	fig, ax = plt.subplots()
-	#img = plt.imread(f'zara01/img-{b+1}.png') # Background Image
-	#plt.imshow(img, alpha=0.6, extent = [0, 16, 0, 14], zorder=0)
 	for p1 in range(num_ped):
 		seq_p1 = sequence[p1,...]
 		pred_p1 = predictions[:,p1,...]
-		plot_pedestrian(seq_p1, pred_p1, colors[p1])
+		print(pred_p1)
+
+	# colors = plt.cm.tab10(np.linspace(0,1,num_ped))
+	# print(f'Number of pedestrians: {num_ped}')
+	# fig, ax = plt.subplots()
+	# #img = plt.imread(f'zara01/img-{b+1}.png') # Background Image
+	# #plt.imshow(img, alpha=0.6, extent = [0, 16, 0, 14], zorder=0)
+	# for p1 in range(num_ped):
+	# 	seq_p1 = sequence[p1,...]
+	# 	pred_p1 = predictions[:,p1,...]
+	# 	plot_pedestrian(seq_p1, pred_p1, colors[p1])
 	
-	legend_elements = [Line2D([0], [0], marker='o', color='r', label='Ground Truth',
-                          markerfacecolor='r', markersize=8), Line2D([0], [0], marker='o', color='blue', label='Prediction',
-                          markerfacecolor='blue', markersize=8)]
-	ax.legend(handles=legend_elements, loc=(1.05, 0))
-	plt.title(args.dset_name.upper())
-	plt.xticks([])
-	plt.yticks([])
-	plt.xlabel(' ')
-	plt.ylabel(' ')
-	plt.tight_layout()
-	plt.xlim([0, 16])
+	# legend_elements = [Line2D([0], [0], marker='o', color='r', label='Ground Truth',
+    #                       markerfacecolor='r', markersize=8), Line2D([0], [0], marker='o', color='blue', label='Prediction',
+    #                       markerfacecolor='blue', markersize=8)]
+	# ax.legend(handles=legend_elements, loc=(1.05, 0))
+	# plt.title(args.dset_name.upper())
+	# plt.xticks([])
+	# plt.yticks([])
+	# plt.xlabel(' ')
+	# plt.ylabel(' ')
+	# plt.tight_layout()
+	# plt.xlim([0, 16])
 	
-	plt.ylim([0, 14])
-	plt.savefig(f'{dirname}/{b+1}.png') 
+	# plt.ylim([0, 14])
+	# plt.savefig(f'{dirname}/{b+1}.png') 
 	
-	data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
-	data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-	img_array+=[data] 
+	# data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
+	# data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+	# img_array+=[data] 
 	
 	
