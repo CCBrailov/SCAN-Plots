@@ -3,7 +3,7 @@ warnings.filterwarnings('ignore')
 
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
+#from torch.autograd import Variable
 
 import glob
 
@@ -21,10 +21,15 @@ from data import dataset, collate_function
 from generative_utils import *
 from utils import *
 
+import socket
+
+HOST = "127.0.0.1"
+PORT = 2063
+
 # Parse Arguments
 args = parse_arguments()
 args.model_type = "spatial_temporal"
-args.dset_name = "zara1"
+args.dset_name = "zara2"
 args.best_k = 5
 args.l = 0.1
 args.delim = "\t"
@@ -36,7 +41,7 @@ def get_prediction(batch, model, args, generative=False):
 	return predictions.unsqueeze(1), sequence
 
 def reload_data():
-    testdataset = dataset(glob.glob(f'data/{args.dset_name}/test/temp.txt'), args)
+    testdataset = dataset(glob.glob(f'data/zara1/test/temp.txt'), args)
     print(f'Number of Test Samples: {len(testdataset)}')
     print('-'*100)
     return testdataset
@@ -45,10 +50,10 @@ def reload_data():
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Initialize Test Dataset
-testdataset = reload_data()
+#testdataset = reload_data()
 
 # Initialize DataLoader
-testloader = DataLoader(testdataset, batch_size=1, collate_fn=collate_function(), shuffle=False)
+#testloader = DataLoader(testdataset, batch_size=1, collate_fn=collate_function(), shuffle=False)
 k = args.best_k
 l = args.l
 
@@ -64,10 +69,7 @@ else:
 
 model.load_state_dict(torch.load(model_file))
 
-while(True):
-    myString = input()
-    if myString == "Q":
-        break
+def MATRIX_predictions():
     testdataset = reload_data()
     testloader = DataLoader(testdataset, batch_size=1, collate_fn=collate_function(), shuffle=False)
     for b, batch in enumerate(testloader):
@@ -81,9 +83,48 @@ while(True):
         sequence = sequence.squeeze(0).clone().detach().cpu()
         target = target.squeeze(0).clone().detach().cpu()
         gt_traj = torch.cat((sequence, target), dim=1)
-        num_ped, slen = sequence.size()[:2] 
-        
+        num_ped, slen = sequence.size()[:2]
+
+        print(f"Predicting trajectories for {num_ped} agents")
+
+        #Empty array to hold prediction strings
+        pStrings = []
+
+        #For each pedestrian in the scene
         for p1 in range(num_ped):
             seq_p1 = sequence[p1,...]
-            pred_p1 = predictions[:,p1,...]
-            print(pred_p1)
+            #Retrieve predictions
+            pred_p1 = torch.Tensor.tolist(predictions[:,p1,...])[0]
+            #Create empty prediction string
+            pString = ""
+            #For each x/y pair, add {x}/{y} to the string followed by a comma
+            for pair in pred_p1:
+                pString += f"{pair[0]}/{pair[1]}"
+                pString += ","
+            pString = pString[:-1]            #Remove the last comma
+            pStrings.append(pString)
+        
+        #Empty string to eventually pass through server
+        dataString = ""
+
+        for string in pStrings:
+            dataString += f"{string}|"
+        
+        dataString = dataString[:-1]
+        return dataString
+
+# Start server
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.bind((HOST, PORT))
+    s.listen()
+    conn, addr = s.accept()
+    with conn:
+        print(f"Connected by {addr}")
+        while True:
+            data = conn.recv(1024)
+            if not data:
+                break
+            data = data.decode()
+            # Do whatever with data
+            dataString = MATRIX_predictions()
+            conn.sendall(dataString.encode())
