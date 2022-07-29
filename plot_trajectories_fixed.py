@@ -46,6 +46,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Parse Arguments
 args = parse_arguments()
+args.obs_len = 6
+args.pred_len = 8
 args.model_type = "spatial_temporal"
 args.dset_name = "zara1"
 args.best_k = 5
@@ -53,7 +55,7 @@ args.l = 0.1
 args.delim = "\t"
 
 # Initialize Test Dataset
-testdataset = dataset(glob.glob(f'data/{args.dset_name}/test/MATRiX_full.txt'), args)
+testdataset = dataset(glob.glob(f'data/{args.dset_name}/test/*.txt'), args)
 print(f'Number of Test Samples: {len(testdataset)}')
 
 print('-'*100)
@@ -104,8 +106,7 @@ for b, batch in enumerate(testloader):
 	for p1 in range(num_ped):
 		seq_p1 = sequence[p1,...]
 		pred_p1 = predictions[:,p1,...]
-		print(pred_p1)
-
+		
 	colors = plt.cm.tab10(np.linspace(0,1,num_ped))
 	print(f'Number of pedestrians: {num_ped}')
 	fig, ax = plt.subplots()
@@ -121,8 +122,8 @@ for b, batch in enumerate(testloader):
                           markerfacecolor='blue', markersize=8)]
 	ax.legend(handles=legend_elements, loc=(1.05, 0))
 	plt.title(args.dset_name.upper())
-	plt.xticks([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])
-	plt.yticks([1,2,3,4,5,6,7,8,9,10,11,12,13,14])
+	plt.xticks([])
+	plt.yticks([])
 	plt.xlabel(' ')
 	plt.ylabel(' ')
 	plt.tight_layout()

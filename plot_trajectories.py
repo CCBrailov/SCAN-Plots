@@ -74,7 +74,6 @@ model.load_state_dict(torch.load(model_file))
 dirname = f'plots/{k}-{l}-{args.dset_name}' if generative else f'plots/{args.dset_name}_deterministic'
 if not os.path.exists(dirname): os.makedirs(dirname)
 
-
 img_array=[] # for collecting frames for gif
 for b, batch in enumerate(testloader):
 	if b >= 224: 
