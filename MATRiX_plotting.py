@@ -48,7 +48,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # Parse Arguments
 args = parse_arguments()
 args.obs_len = 8
-args.pred_len = 8
+args.pred_len = 12
 args.model_type = "spatial_temporal"
 args.dset_name = "zara1"
 args.best_k = 5

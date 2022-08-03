@@ -30,8 +30,8 @@ PORT = 2063
 args = parse_arguments()
 args.obs_len = 8
 args.pred_len = 12
-args.model_type = "spatial_temporal"
-args.dset_name = "zara2"
+args.model_type = "spatial"
+args.dset_name = "zara1"
 args.best_k = 5
 args.l = 0.1
 args.delim = "\t"
@@ -101,6 +101,7 @@ def MATRIX_predictions():
             pString = ""
             #For each x/y pair, add {x}/{y} to the string followed by a comma
             for pair in pred_p1:
+                print(pair)
                 pString += f"{pair[0]}/{pair[1]}"
                 pString += ","
             pString = pString[:-1]            #Remove the last comma
@@ -129,4 +130,5 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             data = data.decode()
             # Do whatever with data
             dataString = MATRIX_predictions()
+            print(dataString)
             conn.sendall(dataString.encode())
